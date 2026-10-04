@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Direct Download Portal</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* Custom Background Grid & Glow Effects */
+    body {
+      background-color: #080c14;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    .bg-cyber-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 12px 40px -10px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn-glow {
+      position: relative;
+    }
+
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(45deg, #6366f1, #8b5cf6, #06b6d4);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      filter: blur(8px);
+    }
+
+    .btn-glow:hover::after {
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col font-sans bg-cyber-grid selection:bg-indigo-500 selection:text-white">
+
+  <!-- HEADER / NAVBAR -->
+  <header class="border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      
+      <!-- Secret Admin Logo Click -->
+      <div id="secretLogo" class="flex items-center space-x-3 cursor-pointer select-none group">
+        <div class="relative">
+          <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-xl blur opacity-40 group-hover:opacity-100 transition duration-300"></div>
+          <div class="relative w-10 h-10 rounded-xl bg-slate-900 border border-slate-700/80 flex items-center justify-center">
+            <i data-lucide="zap" class="w-5 h-5 text-indigo-400 group-hover:text-cyan-400 transition-colors"></i>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-base font-extrabold tracking-wider bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">NEXUS DOWNLOADS</h1>
+            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded uppercase tracking-widest">v2.0</span>
+          </div>
+          <p class="text-[11px] text-slate-400">Direct Direct Download Center</p>
+        </div>
+      </div>
+
+      <!-- Live Search Bar -->
+      <div class="relative max-w-xs w-full hidden sm:block">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input type="text" id="searchInput" placeholder="Cari file atau aplikasi..." class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-200 placeholder-slate-500 transition-all shadow-inner">
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+
+    <!-- Admin Banner -->
+    <div id="adminBanner" class="hidden mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between backdrop-blur-md">
+      <div class="flex items-center space-x-2 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span>Mode Admin Rahasia Aktif</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="addBtn" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-indigo-500/20 transition-all">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Tambah File Baru</span>
+        </button>
+        <button id="logoutAdminBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors">
+          Keluar
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-between items-center mb-8">
+      
+      <!-- Mobile Search -->
+      <div class="relative w-full sm:hidden">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+        <input type="text" id="searchInputMobile" placeholder="Cari file..." class="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs focus:outline-none focus:border-indigo-500 text-slate-200">
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div id="categoryFilter" class="flex items-center space-x-2 overflow-x-auto w-full pb-2 sm:pb-0 scrollbar-none">
+        <button data-cat="all" class="cat-btn bg-indigo-600 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shadow-md shadow-indigo-600/30">Semua</button>
+        <button data-cat="Aplikasi" class="cat-btn bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-400 px-4 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap">Aplikasi</button>
+        <button data-cat="Game" class="cat-btn bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-400 px-4 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap">Game</button>
+        <button data-cat="Script" class="cat-btn bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-400 px-4 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap">Script & Tool</button>
+        <button data-cat="Lainnya" class="cat-btn bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-400 px-4 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap">Lainnya</button>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div id="fileGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Items dynamically injected here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-center mb-4 text-slate-600">
+        <i data-lucide="box" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-sm font-bold text-slate-300 mb-1">Belum Ada File Terdaftar</h3>
+      <p class="text-xs text-slate-500 max-w-sm">File akan muncul di sini setelah diunggah oleh admin.</p>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-900 bg-slate-950/80 py-6 mt-auto backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <p id="secretFooter" class="text-xs text-slate-600 hover:text-slate-500 transition-colors cursor-pointer select-none">
+        &copy; Nexus Download Portal. Clean, Secure & Fast Direct Access.
+      </p>
+    </div>
+  </footer>
+
+  <!-- MODAL: ADD / EDIT FILE -->
+  <div id="fileModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+      <h3 id="modalTitle" class="text-base font-bold text-white mb-4">Tambah File Baru</h3>
+      
+      <form id="fileForm" class="space-y-4">
+        <input type="hidden" id="fileId">
+        
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Nama Aplikasi / File</label>
+          <input type="text" id="fileName" required placeholder="Contoh: Mobile App Mod v2.1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Kategori</label>
+            <select id="fileCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="Aplikasi">Aplikasi</option>
+              <option value="Game">Game</option>
+              <option value="Script">Script & Tool</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Ukuran File</label>
+            <input type="text" id="fileSize" required placeholder="Contoh: 45.2 MB" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Direct Download Link (Catbox/GitHub/dll)</label>
+          <input type="url" id="fileUrl" required placeholder="https://files.catbox.moe/example.apk" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Deskripsi / Catatan Singkat</label>
+          <textarea id="fileDesc" rows="3" placeholder="Informasi fitur, instruksi install, atau catatan versi..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" id="closeModalBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium transition-colors">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all">Simpan File</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const STORAGE_KEY = 'nexus_downloads_db';
+    const ADMIN_KEY = 'nexus_admin_auth';
+    const DEFAULT_PIN = '1234';
+
+    let files = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let isAdmin = localStorage.getItem(ADMIN_KEY) === 'true';
+    let currentCategory = 'all';
+    let searchQuery = '';
+
+    const fileGrid = document.getElementById('fileGrid');
+    const emptyState = document.getElementById('emptyState');
+    const adminBanner = document.getElementById('adminBanner');
+    const fileModal = document.getElementById('fileModal');
+    const fileForm = document.getElementById('fileForm');
+    const secretLogo = document.getElementById('secretLogo');
+    const secretFooter = document.getElementById('secretFooter');
+
+    let logoClickCount = 0;
+    let footerClickCount = 0;
+    let clickTimer = null;
+
+    function initIcons() {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+      renderFiles();
+    }
+
+    function renderFiles() {
+      fileGrid.innerHTML = '';
+
+      let filtered = files.filter(item => {
+        const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              (item.desc && item.desc.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+
+        filtered.forEach(item => {
+          const card = document.createElement('div');
+          card.className = "glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 group relative overflow-hidden";
+
+          card.innerHTML = `
+            <div class="relative z-10">
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                  ${item.category}
+                </span>
+                <span class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-slate-800">
+                  <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-indigo-400"></i>
+                  ${item.size}
+                </span>
+              </div>
+              
+              <h3 class="font-bold text-sm text-slate-100 group-hover:text-indigo-300 transition-colors mb-2 leading-snug">${escapeHtml(item.name)}</h3>
+              <p class="text-xs text-slate-400 line-clamp-2 mb-5 leading-relaxed font-normal">${escapeHtml(item.desc || 'Tidak ada deskripsi.')}</p>
+            </div>
+
+            <div class="relative z-10 pt-3 border-t border-slate-800/80">
+              <div class="flex items-center gap-2">
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn-glow flex-1 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-lg shadow-indigo-600/25">
+                  <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                  <span>Direct Download</span>
+                </a>
+                <button onclick="copyLink('${item.url}')" class="p-2.5 bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-800 transition-colors" title="Salin Link Direct">
+                  <i data-lucide="link-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              ${isAdmin ? `
+                <div class="flex items-center justify-end space-x-3 mt-3 pt-2 border-t border-slate-800/50 text-xs font-medium">
+                  <button onclick="editFile('${item.id}')" class="text-slate-400 hover:text-indigo-400 flex items-center space-x-1 transition-colors">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>Edit</span>
+                  </button>
+                  <button onclick="deleteFile('${item.id}')" class="text-slate-400 hover:text-red-400 flex items-center space-x-1 transition-colors">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>Hapus</span>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+
+          fileGrid.appendChild(card);
+        });
+      }
+
+      initIcons();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        }[m];
+      });
+    }
+
+    window.copyLink = function(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Link direct download berhasil disalin, Bre!');
+      });
+    }
+
+    function handleSecretClick() {
+      logoClickCount++;
+      clearTimeout(clickTimer);
+      
+      if (logoClickCount >= 5) {
+        logoClickCount = 0;
+        triggerAdminLogin();
+      } else {
+        clickTimer = setTimeout(() => {
+          logoClickCount = 0;
+        }, 2000);
+      }
+    }
+
+    function triggerAdminLogin() {
+      if (isAdmin) return;
+      const pin = prompt("Masukkan PIN Admin Rahasia:");
+      if (pin === DEFAULT_PIN) {
+        isAdmin = true;
+        localStorage.setItem(ADMIN_KEY, 'true');
+        updateAdminUI();
+        alert("Akses Admin Diterima!");
+      } else if (pin !== null) {
+        alert("PIN Salah, Bre!");
+      }
+    }
+
+    function updateAdminUI() {
+      if (isAdmin) {
+        adminBanner.classList.remove('hidden');
+      } else {
+        adminBanner.classList.add('hidden');
+      }
+      renderFiles();
+    }
+
+    document.getElementById('addBtn').addEventListener('click', () => {
+      document.getElementById('modalTitle').innerText = "Tambah File Baru";
+      fileForm.reset();
+      document.getElementById('fileId').value = '';
+      fileModal.classList.remove('hidden');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+      fileModal.classList.add('hidden');
+    });
+
+    fileForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('fileId').value;
+      const name = document.getElementById('fileName').value;
+      const category = document.getElementById('fileCategory').value;
+      const size = document.getElementById('fileSize').value;
+      const url = document.getElementById('fileUrl').value;
+      const desc = document.getElementById('fileDesc').value;
+
+      if (id) {
+        const index = files.findIndex(f => f.id === id);
+        if (index !== -1) {
+          files[index] = { id, name, category, size, url, desc };
+        }
+      } else {
+        const newFile = {
+          id: Date.now().toString(),
+          name,
+          category,
+          size,
+          url,
+          desc
+        };
+        files.unshift(newFile);
+      }
+
+      saveData();
+      fileModal.classList.add('hidden');
+    });
+
+    window.editFile = function(id) {
+      const item = files.find(f => f.id === id);
+      if (!item) return;
+
+      document.getElementById('modalTitle').innerText = "Edit File";
+      document.getElementById('fileId').value = item.id;
+      document.getElementById('fileName').value = item.name;
+      document.getElementById('fileCategory').value = item.category;
+      document.getElementById('fileSize').value = item.size;
+      document.getElementById('fileUrl').value = item.url;
+      document.getElementById('fileDesc').value = item.desc || '';
+
+      fileModal.classList.remove('hidden');
+    };
+
+    window.deleteFile = function(id) {
+      if (confirm("Yakin mau hapus file ini, Bre?")) {
+        files = files.filter(f => f.id !== id);
+        saveData();
+      }
+    };
+
+    document.getElementById('logoutAdminBtn').addEventListener('click', () => {
+      isAdmin = false;
+      localStorage.removeItem(ADMIN_KEY);
+      updateAdminUI();
+    });
+
+    secretLogo.addEventListener('click', handleSecretClick);
+    secretFooter.addEventListener('click', () => {
+      footerClickCount++;
+      if (footerClickCount >= 3) {
+        footerClickCount = 0;
+        triggerAdminLogin();
+      }
+    });
+
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.cat-btn').forEach(b => {
+          b.className = "cat-btn bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-400 px-4 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap";
+        });
+        e.target.className = "cat-btn bg-indigo-600 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap shadow-md shadow-indigo-600/30";
+        
+        currentCategory = e.target.getAttribute('data-cat');
+        renderFiles();
+      });
+    });
+
+    const handleSearch = (e) => {
+      searchQuery = e.target.value;
+      renderFiles();
+    };
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+    document.getElementById('searchInputMobile').addEventListener('input', handleSearch);
+
+    updateAdminUI();
+  </script>
+</body>
+</html>
